@@ -17,6 +17,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.santibanez.saludplus.model.Cita
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -32,6 +33,10 @@ fun MisCitasScreen(onOpenDrawer: () -> Unit) {
     // Estado local para controlar el dialogo de confirmacion de cancelacion
     var citaACancelar by remember { mutableStateOf<Cita?>(null) }
 
+    // SnackbarHostState y CoroutineScope para mostrar el feedback visual
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -42,6 +47,9 @@ fun MisCitasScreen(onOpenDrawer: () -> Unit) {
                     }
                 }
             )
+        },
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState)
         }
     ) { padding ->
         LazyColumn(
@@ -161,6 +169,9 @@ fun MisCitasScreen(onOpenDrawer: () -> Unit) {
                                 misCitas[index] = misCitas[index].copy(estado = "Cancelada")
                             }
                             citaACancelar = null
+                            scope.launch {
+                                snackbarHostState.showSnackbar("Cita cancelada correctamente")
+                            }
                         }
                     ) {
                         Text(
